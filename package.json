@@ -13,11 +13,13 @@
     "date-fns": "^2.16.1",
     "firebase": "^8.2.1",
     "firebase-admin": "^9.4.2",
+    "fuse.js": "^6.4.3",
     "next": "10.0.3",
     "nookies": "^2.5.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "sass": "^1.30.0"
+    "sass": "^1.30.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/cookie": "^0.4.0",

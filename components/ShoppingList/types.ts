@@ -6,4 +6,11 @@ export type ShoppingList = {
   createdOn: string
   archivedOn: string
   items: Array<ListItem>
+  itemsMap?: {
+    [id: string]: {
+      quantity: number
+      completed: boolean
+      itemId: string
+    }
+  }
 }

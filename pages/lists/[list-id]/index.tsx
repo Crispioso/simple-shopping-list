@@ -1,17 +1,19 @@
 import { ShoppingList as ShoppingListT } from '../../../components/ShoppingList/types'
 import ShoppingList from '../../../components/ShoppingList'
+import { ListItem as ListItemT } from '../../../components/ListItem/types'
 import getDb from '../../../firebase/db'
 import checkAuth from '../../../utils/checkAuth'
 
 type Props = {
   list: ShoppingListT
+  previousItems: Array<{ id: string; addedOn: string; label: string }>
 }
 
-export default function ShoppingListPage({ list }: Props) {
+export default function ShoppingListPage({ list, previousItems }: Props) {
   return (
     <>
       <h1>Shopping list</h1>
-      <ShoppingList list={list} />
+      <ShoppingList list={list} previousItems={previousItems} />
     </>
   )
 }
@@ -27,24 +29,19 @@ export async function getServerSideProps(context) {
   const doc = await db.collection('lists').doc(listId).get()
   const docData = doc.data()
 
-  const itemsMap = {}
-  docData.listItems.forEach((item) => {
-    const itemId = item.item.id
-    if (itemsMap[itemId] in itemsMap) {
-      return
+  const itemsMap = new Map()
+  const itemsCollection = db.collection('items')
+  const itemsQuery = await itemsCollection.get()
+  const previousItems = []
+  itemsQuery.forEach((item) => {
+    const formattedData = {
+      label: item.data().label,
+      addedOn: item.data().added_on.toDate().toISOString(),
     }
-    itemsMap[itemId] = undefined
+    itemsMap.set(item.id, formattedData)
+    previousItems.push({ id: item.id, ...formattedData })
   })
-  const requests = Object.keys(itemsMap).map((itemId) =>
-    db.collection('items').doc(itemId).get(),
-  )
-  const itemDocs = await Promise.all(requests)
-  itemDocs.forEach((itemDoc) => {
-    itemsMap[itemDoc.id] = {
-      label: itemDoc.data().label,
-      addedOn: itemDoc.data().added_on.toDate().toISOString(),
-    }
-  })
+  console.log(docData.listItemsMap)
   const list: ShoppingListT = {
     id: doc.id,
     createdOn: docData.createdOn.toDate().toISOString(),
@@ -56,13 +53,26 @@ export async function getServerSideProps(context) {
       docData.completedOn != null
         ? docData.completedOn.toDate().toISOString()
         : null,
-    items: docData.listItems.map((listItem) => ({
-      ...itemsMap[listItem.item.id],
-      id: listItem.id,
-      completed: listItem.completed,
-      quantity: listItem.quantity,
-    })),
+    // items: docData.listItems.map((listItem) => {
+    //   return {
+    //     id: listItem.id,
+    //     label: itemsMap.get(listItem.itemId).label,
+    //     addedOn: itemsMap.get(listItem.itemId).addedOn,
+    //     completed: listItem.completed,
+    //     quantity: listItem.quantity,
+    //   }
+    // }),
+    items: Object.keys(docData.listItemsMap).map((id) => {
+      const listItem = docData.listItemsMap[id]
+      return {
+        id,
+        label: itemsMap.get(listItem.itemId).label,
+        addedOn: itemsMap.get(listItem.itemId).addedOn,
+        completed: listItem.completed,
+        quantity: listItem.quantity,
+      }
+    }),
   }
 
-  return { props: { list } }
+  return { props: { list, previousItems } }
 }

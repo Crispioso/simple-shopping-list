@@ -45,7 +45,8 @@ export async function getServerSideProps(context) {
       const reqs = []
       querySnapshot.forEach((doc) => {
         doc.data().listItems.forEach((item) => {
-          reqs.push(item.item.get())
+          reqs.push(db.collection('items').doc(item.itemId).get())
+          // reqs.push(item.item.get())
         })
       })
       const rsp = await Promise.all(reqs)
@@ -74,9 +75,10 @@ export async function getServerSideProps(context) {
             docData.completedOn != null
               ? docData.completedOn.toDate().toISOString()
               : null,
-          items: docData.listItems.map((item) => {
+          items: Object.keys(docData.listItemsMap).map((listItemId) => {
+            const item = docData.listItemsMap[listItemId]
             return {
-              ...itemsMap[item.item.id],
+              ...itemsMap[item.itemId],
               completed: item.completed,
               quantity: item.quantity,
             }

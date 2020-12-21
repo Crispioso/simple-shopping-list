@@ -6,7 +6,7 @@ export default async function auth(req, res) {
   // Expire in 5 days
   const expiresIn = 60 * 60 * 24 * 5 * 1000
   if (req.method === 'POST') {
-    var idToken = req.body.token
+    const idToken = req.body.token
 
     try {
       const cookie = await admin
