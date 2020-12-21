@@ -12,8 +12,18 @@ type Props = {
 
 export default function ShoppingList({ list, previousItems }: Props) {
   const [newItemLabel, setNewItemLabel] = useState<string>('')
-  const [addedItems, setAddedItems] = useState<ListItemT[]>([])
+  const [listItems, setListItems] = useState<ListItemT[]>(list.items)
   const toggleItemCompleted = async (completed, listItemId) => {
+    const updatedListItems = listItems.map((item) => {
+      if (item.id === listItemId) {
+        return {
+          ...item,
+          completed,
+        }
+      }
+      return item
+    })
+    setListItems(updatedListItems)
     try {
       await fetch('/api/toggle-list-item', {
         method: 'PUT',
@@ -80,8 +90,8 @@ export default function ShoppingList({ list, previousItems }: Props) {
     }
 
     const newItemId = existingItem?.id ?? uuid()
-    setAddedItems([
-      ...addedItems,
+    setListItems([
+      ...listItems,
       {
         id: newItemId,
         label: trimmedLabel,
@@ -108,12 +118,12 @@ export default function ShoppingList({ list, previousItems }: Props) {
     toggleItemCompleted(completed, listItemId)
   }
 
-  const allItems = [...list.items, ...addedItems]
+  // const allItems = [...list.items, ...addedItems]
 
   return (
     <>
       <ul className={styles.list}>
-        {allItems.map((item) => (
+        {listItems.map((item) => (
           <li key={item.id}>
             <ListItem
               item={item}

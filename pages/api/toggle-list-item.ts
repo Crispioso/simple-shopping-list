@@ -1,5 +1,4 @@
 import getDb from '../../firebase/db'
-import firebase from 'firebase'
 
 export default async function toggleListItem(req, res) {
   if (req.method !== 'PUT') {

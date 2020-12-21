@@ -10,12 +10,16 @@ export default async function addItemToList(req, res) {
   console.log(req.body)
   const { listId, item } = req.body
   const db = await getDb()
-  const admin = await getFirebaseAdmin()
   await db
     .collection('lists')
     .doc(listId)
     .update({
-      listItems: admin.firestore.FieldValue.arrayUnion(item),
+      [`listItemsMap.${item.id}`]: {
+        itemId: item.itemId,
+        completed: item.completed,
+        quantity: item.quantity,
+        addedOn: new Date(),
+      },
     })
 
   res.status(200).end(JSON.stringify({}))
