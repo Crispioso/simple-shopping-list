@@ -8,6 +8,7 @@ type Props = {
   onCompletedChange: (checked: boolean) => void
   onItemLabelChange: (itemLabel: string) => void
   onQuantityChange: (quantity: number) => void
+  handleRemoveListItem: () => void
 }
 
 export default function ListItem({
@@ -15,8 +16,8 @@ export default function ListItem({
   onCompletedChange,
   onItemLabelChange,
   onQuantityChange,
+  handleRemoveListItem,
 }: Props) {
-  // const [quantity, setQuantity] = useState(item.quantity)
   const [label, setLabel] = useState(item.label)
   const [isEditingLabel, setIsEditingLabel] = useState(false)
   const completedInputName = `item-completed-${item.id}`
@@ -82,6 +83,7 @@ export default function ListItem({
           Edit
         </button>
       )}
+      <button onClick={() => handleRemoveListItem()}>Remove</button>
     </>
   )
 }

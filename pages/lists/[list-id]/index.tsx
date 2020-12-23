@@ -41,7 +41,6 @@ export async function getServerSideProps(context) {
     itemsMap.set(item.id, formattedData)
     previousItems.push({ id: item.id, ...formattedData })
   })
-  console.log(docData.listItemsMap)
   const list: ShoppingListT = {
     id: doc.id,
     createdOn: docData.createdOn.toDate().toISOString(),
@@ -56,14 +55,10 @@ export async function getServerSideProps(context) {
     items: Object.keys(docData.listItemsMap)
       .map((id) => {
         const listItem = docData.listItemsMap[id]
-        console.log(
-          itemsMap.get(listItem.itemId).label,
-          itemsMap.get(listItem.itemId).addedOn,
-        )
         return {
           id,
           label: itemsMap.get(listItem.itemId).label,
-          addedOn: itemsMap.get(listItem.itemId).addedOn,
+          addedOn: listItem.addedOn.toDate().toISOString(),
           completed: listItem.completed,
           quantity: listItem.quantity,
         }

@@ -84,10 +84,8 @@ export default function ShoppingList({ list, previousItems }: Props) {
 
     const itemInList = list.items.find((item) => item.label === label)
     if (itemInList != null) {
-      // Up quantity of existing item instead of adding new item
-      console.warn(
-        'TODO: Build upping quantity when trying to add existing item again',
-      )
+      updateQuantity(itemInList.quantity + 1, itemInList.id)
+      setNewItemLabel('')
       return
     }
 
@@ -156,6 +154,24 @@ export default function ShoppingList({ list, previousItems }: Props) {
       console.error('Failed to update list item quantity', error)
     }
   }
+  const removeItem = async (listItemId) => {
+    const updatedListItems = listItems.filter((item) => item.id !== listItemId)
+    setListItems(updatedListItems)
+    try {
+      await fetch('/api/remove-list-item', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          listItemId,
+        }),
+      })
+    } catch (error) {
+      console.error('Failed to remove list item from list', error)
+    }
+  }
   const handleSubmit = async (event) => {
     event.preventDefault()
 
@@ -166,10 +182,8 @@ export default function ShoppingList({ list, previousItems }: Props) {
 
     const itemInList = list.items.find((item) => item.label === trimmedLabel)
     if (itemInList != null) {
-      // Up quantity of existing item instead of adding new item
-      console.warn(
-        'TODO: Build upping quantity when trying to add existing item again',
-      )
+      updateQuantity(itemInList.quantity + 1, itemInList.id)
+      setNewItemLabel('')
       return
     }
 
@@ -208,6 +222,9 @@ export default function ShoppingList({ list, previousItems }: Props) {
   const handleQuantityChange = (quantity, listItemId) => {
     updateQuantity(quantity, listItemId)
   }
+  const handleRemoveListItem = (listItemId) => {
+    removeItem(listItemId)
+  }
 
   return (
     <>
@@ -224,6 +241,9 @@ export default function ShoppingList({ list, previousItems }: Props) {
               }}
               onQuantityChange={(quantity) => {
                 handleQuantityChange(quantity, item.id)
+              }}
+              handleRemoveListItem={() => {
+                handleRemoveListItem(item.id)
               }}
             />
           </li>
