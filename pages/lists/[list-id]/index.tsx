@@ -1,6 +1,7 @@
+import Link from 'next/link'
+
 import { ShoppingList as ShoppingListT } from '../../../components/ShoppingList/types'
 import ShoppingList from '../../../components/ShoppingList'
-import { ListItem as ListItemT } from '../../../components/ListItem/types'
 import getDb from '../../../firebase/db'
 import checkAuth from '../../../utils/checkAuth'
 
@@ -13,6 +14,11 @@ export default function ShoppingListPage({ list, previousItems }: Props) {
   return (
     <>
       <h1>Shopping list</h1>
+      <p>
+        <Link href="/">
+          <a>&lt; All lists</a>
+        </Link>
+      </p>
       <ShoppingList list={list} previousItems={previousItems} />
     </>
   )
@@ -23,8 +29,8 @@ export async function getServerSideProps(context) {
     return { props: {} }
   }
 
-  const { req } = context
-  const listId = req.url.replace('/lists/', '')
+  const { query } = context
+  const listId = query['list-id']
   const db = await getDb()
   const doc = await db.collection('lists').doc(listId).get()
   const docData = doc.data()

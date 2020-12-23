@@ -261,9 +261,6 @@ export default function ShoppingList({ list, previousItems }: Props) {
         <button type="submit">Add</button>
       </form>
       <br />
-      {/* <button type="button" onClick={() => addItem('abc-123')}>
-        Add
-      </button> */}
     </>
   )
 }
