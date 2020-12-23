@@ -53,16 +53,21 @@ export async function getServerSideProps(context) {
       docData.completedOn != null
         ? docData.completedOn.toDate().toISOString()
         : null,
-    items: Object.keys(docData.listItemsMap).map((id) => {
-      const listItem = docData.listItemsMap[id]
-      return {
-        id,
-        label: itemsMap.get(listItem.itemId).label,
-        addedOn: itemsMap.get(listItem.itemId).addedOn,
-        completed: listItem.completed,
-        quantity: listItem.quantity,
-      }
-    }),
+    items: Object.keys(docData.listItemsMap)
+      .map((id) => {
+        const listItem = docData.listItemsMap[id]
+        console.log(itemsMap.get(listItem.itemId).addedOn)
+        return {
+          id,
+          label: itemsMap.get(listItem.itemId).label,
+          addedOn: itemsMap.get(listItem.itemId).addedOn,
+          completed: listItem.completed,
+          quantity: listItem.quantity,
+        }
+      })
+      .sort(
+        (a, b) => new Date(b.addedOn).getTime() - new Date(a.addedOn).getTime(),
+      ),
   }
 
   return { props: { list, previousItems } }
