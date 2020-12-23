@@ -56,7 +56,10 @@ export async function getServerSideProps(context) {
     items: Object.keys(docData.listItemsMap)
       .map((id) => {
         const listItem = docData.listItemsMap[id]
-        console.log(itemsMap.get(listItem.itemId).addedOn)
+        console.log(
+          itemsMap.get(listItem.itemId).label,
+          itemsMap.get(listItem.itemId).addedOn,
+        )
         return {
           id,
           label: itemsMap.get(listItem.itemId).label,
@@ -66,7 +69,7 @@ export async function getServerSideProps(context) {
         }
       })
       .sort(
-        (a, b) => new Date(b.addedOn).getTime() - new Date(a.addedOn).getTime(),
+        (a, b) => new Date(a.addedOn).getTime() - new Date(b.addedOn).getTime(),
       ),
   }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ListItem as ListItemT } from './types'
 import cx from 'classnames'
 import styles from './ListItem.module.scss'
@@ -7,23 +7,27 @@ type Props = {
   item: ListItemT
   onCompletedChange: (checked: boolean) => void
   onItemLabelChange: (itemLabel: string) => void
+  onQuantityChange: (quantity: number) => void
 }
 
 export default function ListItem({
   item,
   onCompletedChange,
   onItemLabelChange,
+  onQuantityChange,
 }: Props) {
+  // const [quantity, setQuantity] = useState(item.quantity)
   const [label, setLabel] = useState(item.label)
   const [isEditingLabel, setIsEditingLabel] = useState(false)
   const completedInputName = `item-completed-${item.id}`
   const labelInputName = `item-label-${item.id}`
+  const { quantity, completed } = item
 
   return (
     <>
       <input
         type="checkbox"
-        checked={item.completed}
+        checked={completed}
         onChange={(event) => onCompletedChange(event.currentTarget.checked)}
         id={completedInputName}
         name={completedInputName}
@@ -51,6 +55,16 @@ export default function ListItem({
           />
         </>
       )}
+      {quantity > 1 && (
+        <>
+          <span>
+            {' '}
+            <button onClick={() => onQuantityChange(quantity - 1)}>-</button> x
+            {quantity}
+          </span>
+        </>
+      )}
+      <button onClick={() => onQuantityChange(quantity + 1)}>+</button>
       {isEditingLabel ? (
         <button
           type="button"

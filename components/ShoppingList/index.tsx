@@ -13,7 +13,6 @@ type Props = {
 export default function ShoppingList({ list, previousItems }: Props) {
   const [newItemLabel, setNewItemLabel] = useState<string>('')
   const [listItems, setListItems] = useState<ListItemT[]>(list.items)
-  const editItemLabel = async (label) => {}
   const toggleItemCompleted = async (completed, listItemId) => {
     const updatedListItems = listItems.map((item) => {
       if (item.id === listItemId) {
@@ -104,6 +103,16 @@ export default function ShoppingList({ list, previousItems }: Props) {
     }
   }
   const updateItemId = async (itemId, listItemId) => {
+    const updatedListItems = listItems.map((item) => {
+      if (item.id === listItemId) {
+        return {
+          ...item,
+          itemId,
+        }
+      }
+      return item
+    })
+    setListItems(updatedListItems)
     try {
       await fetch('/api/edit-list-item-ref', {
         method: 'PUT',
@@ -118,6 +127,33 @@ export default function ShoppingList({ list, previousItems }: Props) {
       })
     } catch (error) {
       console.error('Failed to update list item with new item ref', error)
+    }
+  }
+  const updateQuantity = async (quantity, listItemId) => {
+    const updatedListItems = listItems.map((item) => {
+      if (item.id === listItemId) {
+        return {
+          ...item,
+          quantity,
+        }
+      }
+      return item
+    })
+    setListItems(updatedListItems)
+    try {
+      await fetch('/api/edit-list-item-quantity', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          listItemId,
+          quantity,
+        }),
+      })
+    } catch (error) {
+      console.error('Failed to update list item quantity', error)
     }
   }
   const handleSubmit = async (event) => {
@@ -169,6 +205,9 @@ export default function ShoppingList({ list, previousItems }: Props) {
     const itemId = await getItemOrCreateNew(newLabel)
     updateItemId(itemId, listItemId)
   }
+  const handleQuantityChange = (quantity, listItemId) => {
+    updateQuantity(quantity, listItemId)
+  }
 
   return (
     <>
@@ -182,6 +221,9 @@ export default function ShoppingList({ list, previousItems }: Props) {
               }
               onItemLabelChange={(newLabel) => {
                 handleItemLabelChange(newLabel, item.id)
+              }}
+              onQuantityChange={(quantity) => {
+                handleQuantityChange(quantity, item.id)
               }}
             />
           </li>
