@@ -7,10 +7,15 @@ export default async function createItem(req, res) {
     return
   }
   const { id, label } = req.body
+  const added_on = new Date()
   const db = await getDb()
   await db.collection('items').doc(id).set({
     label,
-    added_on: new Date(),
+    added_on,
   })
-  res.status(200).end(JSON.stringify({ item: { id, label } }))
+  res.status(200).end(
+    JSON.stringify({
+      item: { id, label, added_on },
+    }),
+  )
 }

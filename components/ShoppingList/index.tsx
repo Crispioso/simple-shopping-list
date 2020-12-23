@@ -13,6 +13,7 @@ type Props = {
 export default function ShoppingList({ list, previousItems }: Props) {
   const [newItemLabel, setNewItemLabel] = useState<string>('')
   const [listItems, setListItems] = useState<ListItemT[]>(list.items)
+  const editItemLabel = async (label) => {}
   const toggleItemCompleted = async (completed, listItemId) => {
     const updatedListItems = listItems.map((item) => {
       if (item.id === listItemId) {
@@ -42,7 +43,7 @@ export default function ShoppingList({ list, previousItems }: Props) {
   }
   const createItem = async (label, id) => {
     try {
-      await fetch('/api/create-item', {
+      const rsp = await fetch('/api/create-item', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,6 +53,11 @@ export default function ShoppingList({ list, previousItems }: Props) {
           label,
         }),
       })
+      const data = await rsp.json()
+      return {
+        id,
+        ...data,
+      }
     } catch (error) {
       throw error
     }
@@ -71,6 +77,48 @@ export default function ShoppingList({ list, previousItems }: Props) {
       },
       body: JSON.stringify({ listId: list.id, item: newItem }),
     })
+  }
+  const getItemOrCreateNew = async (label) => {
+    const existingItem = previousItems.find((item) => {
+      return item.label === label
+    })
+
+    const itemInList = list.items.find((item) => item.label === label)
+    if (itemInList != null) {
+      // Up quantity of existing item instead of adding new item
+      console.warn(
+        'TODO: Build upping quantity when trying to add existing item again',
+      )
+      return
+    }
+
+    try {
+      // Create a new item if we're not adding an existing one to the list
+      if (existingItem == null) {
+        const newItem = await createItem(label, uuid())
+        return newItem.id
+      }
+      return existingItem.id
+    } catch (error) {
+      console.error('Failed to create new item', error)
+    }
+  }
+  const updateItemId = async (itemId, listItemId) => {
+    try {
+      await fetch('/api/edit-list-item-ref', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          listItemId,
+          itemId,
+        }),
+      })
+    } catch (error) {
+      console.error('Failed to update list item with new item ref', error)
+    }
   }
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -117,8 +165,10 @@ export default function ShoppingList({ list, previousItems }: Props) {
   const handleCompletedToggle = (completed, listItemId) => {
     toggleItemCompleted(completed, listItemId)
   }
-
-  // const allItems = [...list.items, ...addedItems]
+  const handleItemLabelChange = async (newLabel, listItemId) => {
+    const itemId = await getItemOrCreateNew(newLabel)
+    updateItemId(itemId, listItemId)
+  }
 
   return (
     <>
@@ -127,9 +177,12 @@ export default function ShoppingList({ list, previousItems }: Props) {
           <li key={item.id}>
             <ListItem
               item={item}
-              onChange={(completed) =>
+              onCompletedChange={(completed) =>
                 handleCompletedToggle(completed, item.id)
               }
+              onItemLabelChange={(newLabel) => {
+                handleItemLabelChange(newLabel, item.id)
+              }}
             />
           </li>
         ))}

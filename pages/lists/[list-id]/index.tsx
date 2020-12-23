@@ -53,15 +53,6 @@ export async function getServerSideProps(context) {
       docData.completedOn != null
         ? docData.completedOn.toDate().toISOString()
         : null,
-    // items: docData.listItems.map((listItem) => {
-    //   return {
-    //     id: listItem.id,
-    //     label: itemsMap.get(listItem.itemId).label,
-    //     addedOn: itemsMap.get(listItem.itemId).addedOn,
-    //     completed: listItem.completed,
-    //     quantity: listItem.quantity,
-    //   }
-    // }),
     items: Object.keys(docData.listItemsMap).map((id) => {
       const listItem = docData.listItemsMap[id]
       return {

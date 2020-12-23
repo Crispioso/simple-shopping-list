@@ -1,7 +1,4 @@
 import getDb from '../../firebase/db'
-// import admin from 'firebase-admin'
-import getFirebaseAdmin from '../../firebase/admin'
-
 export default async function addItemToList(req, res) {
   if (req.method !== 'PUT') {
     res.status(404).send('Unrecognised endpoint')
